@@ -17,7 +17,7 @@ const defaultSponsors: Sponsor[] = [
   { name: 'FPT Corporation', logo: '/sponsors/viettel.jpg', website: 'https://fpt.com' },
   { name: 'Viettel Group', logo: '/sponsors/viettel.jpg', website: 'https://viettel.com' },
   { name: 'VinGroup', logo: '/sponsors/viettel.jpg', website: 'https://vingroup.net' },
-  { name: 'VNPT', logo: '/sponsors/viettel.jpg', website: 'https://vnpt.vn' },
+  { name: 'VNPT', logo: '/sponsors/viettel.jpg', website: '#' },
   { name: 'Microsoft Vietnam', logo: '/sponsors/viettel.jpg', website: 'https://microsoft.com' },
   { name: 'Google Vietnam', logo: '/sponsors/viettel.jpg', website: 'https://google.com' },
   { name: 'MoMo', logo: '/sponsors/viettel.jpg', website: 'https://momo.vn' },
@@ -32,7 +32,7 @@ export default function Sponsors({
 }: SponsorsProps) {
 
   return (
-    <section id="sponsors" className="py-16 bg-white">
+    <section id="sponsors" className="py-16 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">

@@ -14,7 +14,7 @@ export default function About({
 }: AboutProps) {
   return (
     // THAY ĐỔI Ở ĐÂY: Thêm thẻ section với id và className bạn muốn
-    <section id="about" className="py-16 bg-gray-50 text-gray-800 font-sans">
+    <section id="about" className="py-16 bg-white text-gray-800 font-sans">
       <main className="container mx-auto px-4 max-w-6xl">
         
         {/* === PHẦN GIỚI THIỆU CUỘC THI === */}

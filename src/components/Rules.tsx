@@ -53,7 +53,7 @@ export default function Rules() {
   ];
 
   return (
-    <section id="rules" className="bg-white py-16 sm:py-24">
+    <section id="rules" className="bg-gray-50 py-16 sm:py-24">
       <div className="container mx-auto max-w-4xl px-4">
         {/* Tiêu đề */}
         <div className="text-center mb-12">

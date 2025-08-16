@@ -26,7 +26,7 @@ export default function Timeline({
   timeline = defaultTimeline
 }: TimelineProps) {
   return (
-    <section id="timeline" className="py-16 bg-gray-50">
+    <section id="timeline" className="py-16 bg-white">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-bold text-red-900">

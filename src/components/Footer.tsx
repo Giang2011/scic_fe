@@ -1,17 +1,24 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
     <footer className="bg-gray-900">
       <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
-        <div className="md:flex md:items-center md:space-x-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-red-600 rounded-lg">
-              <span className="text-white font-bold text-lg">S</span>
+        <div className="md:flex md:items-start md:space-x-6">
+          <div className="flex flex-col items-center md:items-start">
+            <span className="text-xl font-bold text-white mb-3">SCIC 2025</span>
+            <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-4">
+              <Image
+                src="/soict.png"
+                alt="SOICT Logo"
+                width={100}
+                height={100}
+                className="object-contain w-full h-full"
+              />
             </div>
-            <span className="text-xl font-bold text-white">SCIC 2025</span>
           </div>
-          <div className="mt-4 md:mt-0">
+          <div className="mt-4 md:mt-0 text-center md:text-left">
             <p className="text-sm text-gray-400">
               Student Competition in Innovation & Creativity
             </p>
@@ -24,7 +31,7 @@ export default function Footer() {
         <div className="mt-8 md:mt-0">
           <div className="flex space-x-6">
             <Link
-              href="#"
+              href="https://www.facebook.com/scic.soict"
               className="text-gray-400 hover:text-gray-300 transition-colors"
             >
               <span className="sr-only">Facebook</span>

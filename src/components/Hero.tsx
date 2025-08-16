@@ -22,7 +22,7 @@ export default function Hero({
   backgroundImage = "/backgroundscic2025.png"
 }: HeroProps) {
   return (
-    <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
+    <section className="relative bg-gradient-to-br from-red-900 via-red-800 to-red-900 text-white">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
