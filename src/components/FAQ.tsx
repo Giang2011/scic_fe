@@ -41,7 +41,7 @@ export default function FAQ() {
                   <span className="text-red-900">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`h-6 w-6 transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}
+                      className={`h-6 w-6 transform transition-transform duration-500 ${openIndex === index ? 'rotate-180' : ''}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
