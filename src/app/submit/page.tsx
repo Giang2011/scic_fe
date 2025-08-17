@@ -86,7 +86,8 @@ export default function SubmitPage() {
                   <input
                     type="text"
                     {...register('teamName', { required: 'Vui lòng nhập tên đội thi' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="Nhập tên đội thi của bạn..."
                   />
                   {errors.teamName && (
                     <p className="mt-1 text-sm text-red-600">{errors.teamName.message}</p>
@@ -100,7 +101,8 @@ export default function SubmitPage() {
                   <input
                     type="text"
                     {...register('projectName', { required: 'Vui lòng nhập tên dự án' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="Nhập tên dự án/đề tài..."
                   />
                   {errors.projectName && (
                     <p className="mt-1 text-sm text-red-600">{errors.projectName.message}</p>
@@ -121,7 +123,8 @@ export default function SubmitPage() {
                   <input
                     type="text"
                     {...register('leader.name', { required: 'Vui lòng nhập họ tên' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="Nhập họ và tên trưởng nhóm..."
                   />
                   {errors.leader?.name && (
                     <p className="mt-1 text-sm text-red-600">{errors.leader.name.message}</p>
@@ -135,7 +138,8 @@ export default function SubmitPage() {
                   <input
                     type="text"
                     {...register('leader.studentId', { required: 'Vui lòng nhập MSSV' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="Nhập mã số sinh viên..."
                   />
                   {errors.leader?.studentId && (
                     <p className="mt-1 text-sm text-red-600">{errors.leader.studentId.message}</p>
@@ -155,7 +159,8 @@ export default function SubmitPage() {
                         message: 'Email không hợp lệ'
                       }
                     })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="example@email.com"
                   />
                   {errors.leader?.email && (
                     <p className="mt-1 text-sm text-red-600">{errors.leader.email.message}</p>
@@ -169,7 +174,8 @@ export default function SubmitPage() {
                   <input
                     type="tel"
                     {...register('leader.phone', { required: 'Vui lòng nhập số điện thoại' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                    placeholder="Nhập số điện thoại..."
                   />
                   {errors.leader?.phone && (
                     <p className="mt-1 text-sm text-red-600">{errors.leader.phone.message}</p>
@@ -213,7 +219,8 @@ export default function SubmitPage() {
                         type="text"
                         value={member.name}
                         onChange={(e) => updateMember(index, 'name', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                        placeholder="Nhập họ và tên..."
                       />
                     </div>
                     
@@ -223,7 +230,8 @@ export default function SubmitPage() {
                         type="text"
                         value={member.studentId}
                         onChange={(e) => updateMember(index, 'studentId', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                        placeholder="Nhập MSSV..."
                       />
                     </div>
                     
@@ -233,7 +241,8 @@ export default function SubmitPage() {
                         type="email"
                         value={member.email}
                         onChange={(e) => updateMember(index, 'email', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                        placeholder="example@email.com"
                       />
                     </div>
                   </div>
@@ -247,12 +256,12 @@ export default function SubmitPage() {
                 Mô tả ngắn về dự án <span className="text-red-500">*</span>
               </label>
               <textarea
-                rows={4}
+                rows={8}
                 {...register('description', { 
                   required: 'Vui lòng nhập mô tả dự án',
                   maxLength: { value: 500, message: 'Mô tả không được quá 500 ký tự' }
                 })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                 placeholder="Mô tả ngắn gọn về ý tưởng, mục tiêu và giải pháp của dự án..."
               />
               {errors.description && (
@@ -293,7 +302,7 @@ export default function SubmitPage() {
                   <input
                     type="url"
                     {...register('videoLink')}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                     placeholder="https://..."
                   />
                 </div>

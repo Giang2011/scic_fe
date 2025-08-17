@@ -174,7 +174,8 @@ export default function FindTeamPage() {
                     <input
                       type="text"
                       {...register('name', { required: 'Vui lòng nhập họ tên' })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      placeholder="Nhập họ và tên của bạn..."
                     />
                     {errors.name && (
                       <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -194,7 +195,8 @@ export default function FindTeamPage() {
                           message: 'Email không hợp lệ'
                         }
                       })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      placeholder="example@email.com"
                     />
                     {errors.email && (
                       <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -209,7 +211,7 @@ export default function FindTeamPage() {
                       type="text"
                       {...register('contact', { required: 'Vui lòng nhập thông tin liên hệ' })}
                       placeholder="Facebook, Zalo, SĐT..."
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                     />
                     {errors.contact && (
                       <p className="mt-1 text-sm text-red-600">{errors.contact.message}</p>
@@ -223,7 +225,8 @@ export default function FindTeamPage() {
                     <input
                       type="text"
                       {...register('school', { required: 'Vui lòng nhập trường/ngành' })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      placeholder="Ví dụ: Đại học Bách khoa Hà Nội - CNTT"
                     />
                     {errors.school && (
                       <p className="mt-1 text-sm text-red-600">{errors.school.message}</p>
@@ -258,10 +261,10 @@ export default function FindTeamPage() {
                     Lĩnh vực/Ý tưởng quan tâm <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    rows={3}
+                    rows={7}
                     {...register('interests', { required: 'Vui lòng nhập lĩnh vực quan tâm' })}
                     placeholder="Mô tả ngắn về lĩnh vực hoặc ý tưởng bạn muốn làm..."
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                   />
                   {errors.interests && (
                     <p className="mt-1 text-sm text-red-600">{errors.interests.message}</p>
@@ -287,13 +290,13 @@ export default function FindTeamPage() {
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
               <div className="flex-1">
                 <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Tìm kiếm theo tên, trường, hoặc lĩnh vực quan tâm..."
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="pl-10 w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    className="pl-12 pr-4 py-4 w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400"
                   />
                 </div>
               </div>
