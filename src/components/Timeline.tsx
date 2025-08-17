@@ -1,11 +1,6 @@
-import { CalendarDays } from 'lucide-react'; // Import icon cho thêm phần sinh động
 
-// Interface và dữ liệu mặc định không thay đổi
-interface TimelineItem {
-  phase: string;
-  date: string;
-  description: string;
-}
+import { CalendarDays } from 'lucide-react';
+import { timelineData, TimelineItem, sectionContent } from '../data/siteContent';
 
 interface TimelineProps {
   title?: string;
@@ -13,17 +8,10 @@ interface TimelineProps {
   timeline?: TimelineItem[];
 }
 
-const defaultTimeline: TimelineItem[] = [
-  { phase: 'Mở Đăng ký', date: '01/03 - 15/03/2025', description: 'Các đội tiến hành đăng ký và nộp ý tưởng dự thi ban đầu.' },
-  { phase: 'Vòng Sơ loại', date: '16/03 - 30/03/2025', description: 'Ban giám khảo đánh giá hồ sơ và chọn lọc các đội xuất sắc nhất.' },
-  { phase: 'Vòng Chung kết', date: '01/04 - 15/04/2025', description: 'Các đội финалист thuyết trình dự án trực tiếp và tham gia phần hỏi đáp.' },
-  { phase: 'Công bố & Trao giải', date: '16/04/2025', description: 'Công bố kết quả cuối cùng và trao giải cho các đội chiến thắng.' },
-];
-
 export default function Timeline({
-  title = "Lịch trình Cuộc thi",
-  description = "Theo dõi các mốc thời gian quan trọng để không bỏ lỡ bất kỳ cơ hội nào.",
-  timeline = defaultTimeline
+  title = sectionContent.timeline.title,
+  description = sectionContent.timeline.description,
+  timeline = timelineData
 }: TimelineProps) {
   return (
     <section id="timeline" className="py-16 bg-white">

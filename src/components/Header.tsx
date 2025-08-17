@@ -17,7 +17,7 @@ export default function Header() {
     { name: 'Ban Giám khảo', href: 'judges', isScroll: true },
     { name: 'Tin tức', href: 'news', isScroll: true },
     { name: 'FAQ', href: 'faq', isScroll: true },
-    { name: 'Liên hệ', href: 'contact', isScroll: true },
+    { name: 'Nhà tài trợ', href: 'sponsors', isScroll: true },
   ];
 
   return (
@@ -35,7 +35,6 @@ export default function Header() {
                   className="object-contain w-full h-full"
                 />
               </div>
-              <span className="text-2xl font-bold text-gray-900">SCIC</span>
             </Link>
           </div>
           

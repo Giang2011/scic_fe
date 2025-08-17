@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="md:flex md:items-start md:space-x-6">
           <div className="flex flex-col items-center md:items-start">
             <span className="text-xl font-bold text-white mb-3">SCIC 2025</span>
-            <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-4">
+            {/* <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mb-4">
               <Image
                 src="/soict.png"
                 alt="SOICT Logo"
@@ -16,7 +16,7 @@ export default function Footer() {
                 height={100}
                 className="object-contain w-full h-full"
               />
-            </div>
+            </div> */}
           </div>
           <div className="mt-4 md:mt-0 text-center md:text-left">
             <p className="text-sm text-gray-400">
@@ -32,6 +32,8 @@ export default function Footer() {
           <div className="flex space-x-6">
             <Link
               href="https://www.facebook.com/scic.soict"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-gray-400 hover:text-gray-300 transition-colors"
             >
               <span className="sr-only">Facebook</span>

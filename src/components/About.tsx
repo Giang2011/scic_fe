@@ -1,5 +1,17 @@
 import { Lightbulb, Users, Award, Rocket } from 'lucide-react';
 import Image from 'next/image';
+import { aboutData } from '../data/siteContent';
+
+// Hàm để lấy component icon từ tên
+const getIconComponent = (iconName: string) => {
+  const iconMap: { [key: string]: React.ElementType } = {
+    Lightbulb,
+    Users,
+    Award,
+    Rocket
+  };
+  return iconMap[iconName] || Lightbulb;
+};
 
 // Định nghĩa kiểu dữ liệu cho props của component
 interface AboutProps {
@@ -9,8 +21,8 @@ interface AboutProps {
 
 // Component About với background section đã được cập nhật
 export default function About({
-  title = "Về Cuộc thi SCIC 2025",
-  description = "SCIC - Student Competition in Innovation & Creativity là cuộc thi dành cho sinh viên với mục tiêu khuyến khích tư duy sáng tạo, đổi mới và khởi nghiệp trong môi trường học thuật.",
+  title = aboutData.title,
+  description = aboutData.description,
 }: AboutProps) {
   return (
     // THAY ĐỔI Ở ĐÂY: Thêm thẻ section với id và className bạn muốn
@@ -29,7 +41,7 @@ export default function About({
                 {description}
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Dù bạn đam mê công nghệ, phát triển bền vững, tác động xã hội hay đổi mới kinh doanh, SCIC đều là sân khấu hoàn hảo để biến ý tưởng của bạn thành hiện thực và tranh tài cùng những người giỏi nhất.
+                {aboutData.extendedDescription}
               </p>
               <button className="bg-red-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-300 shadow-md">
                 Xem Thể lệ & Quy định
@@ -54,26 +66,17 @@ export default function About({
         {/* === PHẦN CÁC TÍNH NĂNG NỔI BẬT === */}
         <section>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard
-              icon={<Lightbulb className="h-8 w-8 text-red-800" />}
-              title="Tập trung Đổi mới"
-              description="Phát triển các giải pháp đột phá cho những vấn đề trong thế giới thực."
-            />
-            <FeatureCard
-              icon={<Users className="h-8 w-8 text-red-800" />}
-              title="Hợp tác Nhóm"
-              description="Làm việc cùng các sinh viên tài năng từ nhiều môi trường khác nhau."
-            />
-            <FeatureCard
-              icon={<Award className="h-8 w-8 text-red-800" />}
-              title="Sự Công nhận"
-              description="Nhận được sự công nhận từ các chuyên gia và lãnh đạo trong ngành."
-            />
-            <FeatureCard
-              icon={<Rocket className="h-8 w-8 text-red-800" />}
-              title="Phát triển Sự nghiệp"
-              description="Khởi đầu sự nghiệp với những kinh nghiệm và kết nối quý giá."
-            />
+            {aboutData.featureCards.map((feature, index) => {
+              const IconComponent = getIconComponent(feature.iconName);
+              return (
+                <FeatureCard
+                  key={index}
+                  icon={<IconComponent className="h-8 w-8 text-red-800" />}
+                  title={feature.title}
+                  description={feature.description}
+                />
+              );
+            })}
           </div>
         </section>
 

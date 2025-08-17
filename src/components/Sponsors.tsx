@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { sponsorsData, sectionContent } from '../data/siteContent';
 
 // --- INTERFACES & DATA ---
 interface Sponsor {
@@ -13,22 +14,11 @@ interface SponsorsProps {
   sponsors?: Sponsor[];
 }
 
-const defaultSponsors: Sponsor[] = [
-  { name: 'FPT Corporation', logo: '/sponsors/viettel.jpg', website: 'https://fpt.com' },
-  { name: 'Viettel Group', logo: '/sponsors/viettel.jpg', website: 'https://viettel.com' },
-  { name: 'VinGroup', logo: '/sponsors/viettel.jpg', website: 'https://vingroup.net' },
-  { name: 'VNPT', logo: '/sponsors/viettel.jpg', website: '#' },
-  { name: 'Microsoft Vietnam', logo: '/sponsors/viettel.jpg', website: 'https://microsoft.com' },
-  { name: 'Google Vietnam', logo: '/sponsors/viettel.jpg', website: 'https://google.com' },
-  { name: 'MoMo', logo: '/sponsors/viettel.jpg', website: 'https://momo.vn' },
-  { name: 'VNG Corporation', logo: '/sponsors/viettel.jpg', website: 'https://vng.com.vn' },
-];
-
 // --- COMPONENT ---
 export default function Sponsors({
-  title = "Nhà tài trợ & Đối tác",
-  description = "Chúng tôi xin chân thành cảm ơn sự đồng hành quý báu của các đối tác và nhà tài trợ đã góp phần tạo nên thành công của cuộc thi.",
-  sponsors = defaultSponsors
+  title = sectionContent.sponsors.title,
+  description = sectionContent.sponsors.description,
+  sponsors = sponsorsData
 }: SponsorsProps) {
 
   return (
