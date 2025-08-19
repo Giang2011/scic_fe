@@ -2,68 +2,40 @@
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { MagnifyingGlassIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 
 type FindTeamForm = {
-  name: string;
+  full_name: string;
   email: string;
-  contact: string;
+  facebook: string;
+  zalo: string;
+  phone: string;
   school: string;
+  major: string;
   skills: string[];
+  other_skills: string;
   interests: string;
 };
 
 type TeamMember = {
-  id: number;
-  name: string;
+  _id: string;
+  full_name: string;
+  email: string;
+  social_links: string[];
   school: string;
+  major: string;
   skills: string[];
-  interests: string;
-  contact: string;
-  joinedAt: string;
+  interests?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: string;
+  __v?: number;
 };
 
 // Mock data for demonstration
-const mockMembers: TeamMember[] = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    school: 'Đại học Công nghệ - ĐHQGHN',
-    skills: ['Lập trình', 'AI/ML', 'Thiết kế UI/UX'],
-    interests: 'Phát triển ứng dụng AI cho giáo dục',
-    contact: 'nguyenvana@email.com',
-    joinedAt: '2025-01-15'
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    school: 'Đại học Kinh tế Quốc dân',
-    skills: ['Marketing', 'Phân tích dữ liệu', 'Thuyết trình'],
-    interests: 'Startup trong lĩnh vực fintech',
-    contact: 'tranthib@email.com',
-    joinedAt: '2025-01-14'
-  },
-  {
-    id: 3,
-    name: 'Lê Minh C',
-    school: 'Đại học Bách khoa Hà Nội',
-    skills: ['IoT', 'Embedded Systems', 'Python'],
-    interests: 'Giải pháp smart home và IoT',
-    contact: 'leminhc@email.com',
-    joinedAt: '2025-01-13'
-  },
-  {
-    id: 4,
-    name: 'Phạm Thu D',
-    school: 'Đại học Y Hà Nội',
-    skills: ['Nghiên cứu y khoa', 'Thiết kế', 'Thuyết trình'],
-    interests: 'Ứng dụng công nghệ trong y tế',
-    contact: 'phamthud@email.com',
-    joinedAt: '2025-01-12'
-  }
-];
+const mockMembers: TeamMember[] = [];
 
 const skillOptions = [
   'Lập trình', 'AI/ML', 'Thiết kế UI/UX', 'Marketing', 'Phân tích dữ liệu',
@@ -72,13 +44,46 @@ const skillOptions = [
 ];
 
 export default function FindTeamPage() {
-  const [members, setMembers] = useState<TeamMember[]>(mockMembers);
-  const [filteredMembers, setFilteredMembers] = useState<TeamMember[]>(mockMembers);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState<TeamMember[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showOtherSkills, setShowOtherSkills] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FindTeamForm>();
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<FindTeamForm>();
+
+  // Fetch members from API
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/connect/accepted');
+      if (response.ok) {
+        const result = await response.json();
+        // Lấy mảng thành viên từ result.data
+        const membersArray = Array.isArray(result.data) ? result.data : [];
+        setMembers(membersArray);
+        setFilteredMembers(membersArray);
+      } else {
+        console.error('Failed to fetch members');
+        setMembers([]);
+        setFilteredMembers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error);
+      setMembers([]);
+      setFilteredMembers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load members when component mounts
+  useEffect(() => {
+    fetchMembers();
+  }, []);
 
   const handleSkillFilter = (skill: string) => {
     const newSkills = selectedSkills.includes(skill)
@@ -105,33 +110,78 @@ export default function FindTeamPage() {
     
     if (search) {
       filtered = filtered.filter(member =>
-        member.name.toLowerCase().includes(search.toLowerCase()) ||
+        member.full_name.toLowerCase().includes(search.toLowerCase()) ||
         member.school.toLowerCase().includes(search.toLowerCase()) ||
-        member.interests.toLowerCase().includes(search.toLowerCase())
+        member.major.toLowerCase().includes(search.toLowerCase()) ||
+        (member.interests && member.interests.toLowerCase().includes(search.toLowerCase()))
       );
     }
     
     setFilteredMembers(filtered);
   };
 
-  const onSubmit = (data: FindTeamForm) => {
-    const newMember: TeamMember = {
-      id: members.length + 1,
-      name: data.name,
+  const onSubmit = async (data: FindTeamForm) => {
+    // Kiểm tra ít nhất một thông tin liên hệ được điền
+    const hasContactInfo = data.facebook.trim() || data.zalo.trim() || data.phone.trim();
+    if (!hasContactInfo) {
+      alert('Vui lòng điền ít nhất một thông tin liên hệ (Facebook, Zalo hoặc Số điện thoại)');
+      return;
+    }
+
+    // Chuẩn bị social_links array (chỉ lấy những field không rỗng)
+    const social_links = [];
+    if (data.facebook.trim()) social_links.push({ link: data.facebook.trim(), type: "facebook" });
+    if (data.zalo.trim()) social_links.push({ link: data.zalo.trim(), type: "zalo" });
+    if (data.phone.trim()) social_links.push({ link: data.phone.trim(), type: "phone" });
+
+    // Chuẩn bị skills array (bao gồm cả kỹ năng khác nếu có)
+    const skills = [...data.skills];
+    if (data.other_skills && data.other_skills.trim()) {
+      const otherSkillsArray = data.other_skills.split(',').map(skill => skill.trim()).filter(skill => skill);
+      skills.push(...otherSkillsArray);
+    }
+
+    // Dữ liệu để gửi API
+    const postData = {
+      full_name: data.full_name,
+      email: data.email,
+      social_links: social_links,
       school: data.school,
-      skills: data.skills,
-      interests: data.interests,
-      contact: data.email,
-      joinedAt: new Date().toISOString().split('T')[0]
+      major: data.major,
+      skills: skills,
+      interests: data.interests
     };
+
+    console.log('Data to send to API:', postData);
     
-    const updatedMembers = [newMember, ...members];
-    setMembers(updatedMembers);
-    setFilteredMembers(updatedMembers);
-    
-    alert('Đăng ký thành công! Thông tin của bạn đã được thêm vào danh sách.');
-    reset();
-    setShowForm(false);
+    // Gửi dữ liệu đến API
+    setSubmitting(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (response.ok) {
+        alert('Đăng ký thành công! Thông tin của bạn đã được gửi và đang chờ duyệt.');
+        reset();
+        setShowForm(false);
+        setShowOtherSkills(false);
+        // Refresh danh sách members
+        fetchMembers();
+      } else {
+        const errorData = await response.json();
+        alert(`Có lỗi xảy ra: ${errorData.message || 'Vui lòng thử lại sau'}`);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Có lỗi kết nối. Vui lòng kiểm tra lại và thử lại sau.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -151,7 +201,13 @@ export default function FindTeamPage() {
         {/* Register Button */}
         <div className="mb-8 text-center">
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              setShowForm(!showForm);
+              if (showForm) {
+                setShowOtherSkills(false);
+                reset();
+              }
+            }}
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             <UserPlusIcon className="h-5 w-5 mr-2" />
@@ -173,12 +229,12 @@ export default function FindTeamPage() {
                     </label>
                     <input
                       type="text"
-                      {...register('name', { required: 'Vui lòng nhập họ tên' })}
+                      {...register('full_name', { required: 'Vui lòng nhập họ tên' })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                       placeholder="Nhập họ và tên của bạn..."
                     />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                    {errors.full_name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.full_name.message}</p>
                     )}
                   </div>
                   
@@ -202,34 +258,75 @@ export default function FindTeamPage() {
                       <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
                     )}
                   </div>
-                  
+                </div>
+
+                {/* Thông tin liên hệ */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Thông tin liên hệ <span className="text-gray-500 text-sm">(Chỉ cần điền ít nhất một trong ba)</span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Facebook</label>
+                      <input
+                        type="text"
+                        {...register('facebook')}
+                        placeholder="Link Facebook hoặc tên tài khoản"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Zalo</label>
+                      <input
+                        type="text"
+                        {...register('zalo')}
+                        placeholder="Số Zalo hoặc tên Zalo"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Số điện thoại</label>
+                      <input
+                        type="tel"
+                        {...register('phone')}
+                        placeholder="Số điện thoại"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trường và ngành học */}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Thông tin liên hệ <span className="text-red-500">*</span>
+                      Trường <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      {...register('contact', { required: 'Vui lòng nhập thông tin liên hệ' })}
-                      placeholder="Facebook, Zalo, SĐT..."
+                      {...register('school', { required: 'Vui lòng nhập tên trường' })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      placeholder="Ví dụ: Đại học Bách khoa Hà Nội"
                     />
-                    {errors.contact && (
-                      <p className="mt-1 text-sm text-red-600">{errors.contact.message}</p>
+                    {errors.school && (
+                      <p className="mt-1 text-sm text-red-600">{errors.school.message}</p>
                     )}
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Trường/Ngành <span className="text-red-500">*</span>
+                      Ngành học <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      {...register('school', { required: 'Vui lòng nhập trường/ngành' })}
+                      {...register('major', { required: 'Vui lòng nhập ngành học' })}
+                      placeholder="Ví dụ: Công nghệ thông tin"
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
-                      placeholder="Ví dụ: Đại học Bách khoa Hà Nội - CNTT"
                     />
-                    {errors.school && (
-                      <p className="mt-1 text-sm text-red-600">{errors.school.message}</p>
+                    {errors.major && (
+                      <p className="mt-1 text-sm text-red-600">{errors.major.message}</p>
                     )}
                   </div>
                 </div>
@@ -238,7 +335,7 @@ export default function FindTeamPage() {
                   <label className="block text-sm font-medium text-gray-700">
                     Kỹ năng nổi bật <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                     {skillOptions.map((skill) => (
                       <label key={skill} className="inline-flex items-center">
                         <input
@@ -250,7 +347,34 @@ export default function FindTeamPage() {
                         <span className="ml-2 text-sm text-gray-700">{skill}</span>
                       </label>
                     ))}
+                    
+                    {/* Ô Kỹ năng khác */}
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={showOtherSkills}
+                        onChange={(e) => setShowOtherSkills(e.target.checked)}
+                        className="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-500 focus:ring-red-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700 font-medium">Kỹ năng khác</span>
+                    </label>
                   </div>
+                  
+                  {/* Input cho kỹ năng khác */}
+                  {showOtherSkills && (
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Kỹ năng khác (phân tách bằng dấu phẩy)
+                      </label>
+                      <input
+                        type="text"
+                        {...register('other_skills')}
+                        placeholder="Ví dụ: Photography, Video Editing, Content Writing"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                      />
+                    </div>
+                  )}
+                  
                   {errors.skills && (
                     <p className="mt-1 text-sm text-red-600">{errors.skills.message}</p>
                   )}
@@ -274,9 +398,10 @@ export default function FindTeamPage() {
                 <div>
                   <button
                     type="submit"
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    disabled={submitting}
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Đăng ký
+                    {submitting ? 'Đang gửi...' : 'Đăng ký'}
                   </button>
                 </div>
               </form>
@@ -329,27 +454,39 @@ export default function FindTeamPage() {
             Danh sách thành viên tìm đội ({filteredMembers.length})
           </h2>
           
-          {filteredMembers.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Đang tải danh sách thành viên...</p>
+            </div>
+          ) : filteredMembers.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">Không tìm thấy thành viên nào phù hợp với tiêu chí tìm kiếm.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredMembers.map((member) => (
-                <div key={member.id} className="bg-white shadow rounded-lg p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{member.school}</p>
-                    </div>
+                <div key={member._id} className="bg-white shadow rounded-lg p-6">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">{member.full_name}</h3>
+                    {/* <p className="text-sm text-gray-600 mt-1">{member.email}</p> */}
                   </div>
                   
-                  <div className="mt-4">
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700">Trường:</h4>
+                    <p className="text-sm text-gray-600">{member.school}</p>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700">Ngành:</h4>
+                    <p className="text-sm text-gray-600">{member.major}</p>
+                  </div>
+                  
+                  <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-700">Kỹ năng:</h4>
                     <div className="mt-2 flex flex-wrap gap-1">
-                      {member.skills.map((skill) => (
+                      {member.skills.map((skill, index) => (
                         <span
-                          key={skill}
+                          key={index}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                         >
                           {skill}
@@ -358,20 +495,29 @@ export default function FindTeamPage() {
                     </div>
                   </div>
                   
-                  <div className="mt-4">
+                  <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-700">Lĩnh vực quan tâm:</h4>
-                    <p className="mt-1 text-sm text-gray-600">{member.interests}</p>
+                    <p className="mt-1 text-sm text-gray-600">{member.interests || 'Chưa cập nhật'}</p>
                   </div>
                   
-                  <div className="mt-6">
-                    <button className="w-full bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
-                      Liên hệ
-                    </button>
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700">Thông tin liên hệ:</h4>
+                    <div className="mt-1 space-y-1">
+                      {member.social_links.length > 0 ? (
+                        member.social_links.map((link, index) => (
+                          <p key={index} className="text-sm text-gray-600">{link}</p>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-600">Liên hệ qua email: {member.email}</p>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="mt-3 text-xs text-gray-500 text-center">
-                    Tham gia: {new Date(member.joinedAt).toLocaleDateString('vi-VN')}
-                  </div>
+                  {member.createdAt && (
+                    <div className="text-xs text-gray-500 text-center border-t pt-3">
+                      Tham gia: {member.createdAt.slice(0, 10)}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/utils/auth';
 import {
   DocumentTextIcon,
   UserGroupIcon,
@@ -61,44 +62,106 @@ const mockPosts = [
   }
 ];
 
-const mockFindTeamMembers = [
-  {
-    id: 1,
-    name: 'Phạm Thu D',
-    school: 'Đại học Y Hà Nội',
-    skills: ['Nghiên cứu y khoa', 'Thiết kế'],
-    registeredAt: '2025-01-12T16:20:00Z'
-  },
-  {
-    id: 2,
-    name: 'Hoàng Văn E',
-    school: 'Đại học Kinh tế',
-    skills: ['Marketing', 'Kinh doanh'],
-    registeredAt: '2025-01-11T11:15:00Z'
-  }
-];
+interface FindTeamMember {
+  _id: string;
+  full_name: string;
+  email: string;
+  social_links: string[];
+  school: string;
+  major: string;
+  skills: string[];
+  interests?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [selectedVideos, setSelectedVideos] = useState<File[]>([]);
+  const [findTeamMembers, setFindTeamMembers] = useState<FindTeamMember[]>([]);
+  const [loadingFindTeam, setLoadingFindTeam] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('scic_admin_token');
-    if (!token) {
-      router.push('/admin');
-    } else {
-      setIsAuthenticated(true);
+    // Kiểm tra authentication
+    if (!auth.isAuthenticated()) {
+      router.push('/login');
+      return;
     }
+
+    const currentUser = auth.getCurrentUser();
+    setUser(currentUser);
   }, [router]);
 
+  // Fetch find team members when activeTab is 'findteam'
+  useEffect(() => {
+    if (activeTab === 'findteam') {
+      fetchFindTeamMembers();
+    }
+  }, [activeTab]);
+
+  const fetchFindTeamMembers = async () => {
+    setLoadingFindTeam(true);
+    try {
+      const response = await auth.fetchWithAuth('http://localhost:8000/api/v1/connect', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+      if (response.ok && result.status === 'success') {
+        setFindTeamMembers(result.data);
+      } else {
+        console.error('Failed to fetch find team members:', result.message);
+        alert('Không thể tải danh sách thành viên tìm đội');
+      }
+    } catch (error) {
+      console.error('Error fetching find team members:', error);
+      alert('Có lỗi kết nối khi tải danh sách thành viên');
+    } finally {
+      setLoadingFindTeam(false);
+    }
+  };
+
+  const updateMemberStatus = async (memberId: string, newStatus: 'pending' | 'accepted' | 'rejected') => {
+    try {
+      const response = await auth.fetchWithAuth(`http://localhost:8000/api/v1/connect/${memberId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const result = await response.json();
+      if (response.ok && result.status === 'success') {
+        // Update local state
+        setFindTeamMembers(prev => 
+          prev.map(member => 
+            member._id === memberId 
+              ? { ...member, status: newStatus }
+              : member
+          )
+        );
+        alert(`Cập nhật trạng thái thành công: ${newStatus}`);
+      } else {
+        console.error('Failed to update status:', result.message);
+        alert('Không thể cập nhật trạng thái');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Có lỗi kết nối khi cập nhật trạng thái');
+    }
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem('scic_admin_token');
-    router.push('/admin');
+    auth.logout();
   };
 
   const handleCreatePost = () => {
@@ -144,8 +207,12 @@ export default function AdminDashboard() {
     alert('Đang xuất dữ liệu ra file Excel...');
   };
 
-  if (!isAuthenticated) {
-    return <div>Loading...</div>;
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+      </div>
+    );
   }
 
   return (
@@ -158,7 +225,10 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-center w-10 h-10 bg-red-600 rounded-lg mr-3">
                 <span className="text-white font-bold text-xl">S</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">SCIC Admin</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">SCIC Admin</h1>
+                <p className="text-sm text-gray-600">{user.email}</p>
+              </div>
             </div>
             <button
               onClick={handleLogout}
@@ -252,7 +322,7 @@ export default function AdminDashboard() {
                           Tìm đội
                         </dt>
                         <dd className="text-lg font-medium text-gray-900">
-                          {mockFindTeamMembers.length}
+                          {findTeamMembers.length}
                         </dd>
                       </dl>
                     </div>
@@ -572,56 +642,119 @@ export default function AdminDashboard() {
         {/* Find Team Tab */}
         {activeTab === 'findteam' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Quản lý thành viên tìm đội</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Quản lý thành viên tìm đội</h2>
+              <button
+                onClick={fetchFindTeamMembers}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+              >
+                Làm mới
+              </button>
+            </div>
 
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
-              <ul className="divide-y divide-gray-200">
-                {mockFindTeamMembers.map((member) => (
-                  <li key={member.id}>
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-red-600 truncate">
-                              {member.name}
-                            </p>
-                          </div>
-                          <div className="mt-2">
-                            <div className="sm:flex sm:justify-between">
-                              <div className="sm:flex">
-                                <p className="flex items-center text-sm text-gray-500">
-                                  {member.school}
+            {loadingFindTeam ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+              </div>
+            ) : (
+              <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul className="divide-y divide-gray-200">
+                  {findTeamMembers.map((member) => (
+                    <li key={member._id}>
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <p className="text-sm font-medium text-red-600 truncate">
+                                  {member.full_name}
                                 </p>
-                              </div>
-                              <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                <p>
-                                  Đăng ký: {new Date(member.registeredAt).toLocaleString('vi-VN')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {member.skills.map((skill) => (
-                                <span
-                                  key={skill}
-                                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                                >
-                                  {skill}
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                  member.status === 'accepted' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : member.status === 'rejected'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {member.status === 'accepted' ? 'Chấp nhận' : 
+                                   member.status === 'rejected' ? 'Từ chối' : 'Chờ duyệt'}
                                 </span>
-                              ))}
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <div className="sm:flex sm:justify-between">
+                                <div className="sm:flex sm:flex-col sm:space-y-1">
+                                  <p className="flex items-center text-sm text-gray-500">
+                                    Email: {member.email}
+                                  </p>
+                                  <p className="flex items-center text-sm text-gray-500">
+                                    Trường: {member.school}
+                                  </p>
+                                  <p className="flex items-center text-sm text-gray-500">
+                                    Ngành: {member.major}
+                                  </p>
+                                  {member.interests && (
+                                    <p className="flex items-center text-sm text-gray-500">
+                                      Sở thích: {member.interests}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                  <p>
+                                    Đăng ký: {new Date(member.createdAt).toLocaleString('vi-VN')}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {member.skills.map((skill) => (
+                                  <span
+                                    key={skill}
+                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <button className="text-red-600 hover:text-red-800">
-                            <TrashIcon className="h-5 w-5" />
-                          </button>
+                          <div className="flex space-x-2">
+                            {member.status !== 'accepted' && (
+                              <button 
+                                onClick={() => updateMemberStatus(member._id, 'accepted')}
+                                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                              >
+                                Chấp nhận
+                              </button>
+                            )}
+                            {member.status !== 'rejected' && (
+                              <button 
+                                onClick={() => updateMemberStatus(member._id, 'rejected')}
+                                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700"
+                              >
+                                Từ chối
+                              </button>
+                            )}
+                            {member.status !== 'pending' && (
+                              <button 
+                                onClick={() => updateMemberStatus(member._id, 'pending')}
+                                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-yellow-600 hover:bg-yellow-700"
+                              >
+                                Chờ duyệt
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    </li>
+                  ))}
+                  {findTeamMembers.length === 0 && (
+                    <li className="px-4 py-8 text-center text-gray-500">
+                      Không có thành viên nào đang tìm đội
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>

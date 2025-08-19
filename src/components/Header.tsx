@@ -5,8 +5,10 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Link as ScrollLink } from 'react-scroll';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigation = [
@@ -25,14 +27,14 @@ export default function Header() {
       <nav className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 xl:px-10" aria-label="Top">
         <div className="flex w-full items-center justify-between border-b border-red-500 py-6 lg:border-none">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
+            <Link href="/" className="flex items-center space-x-3 h-12 sm:h-14 lg:h-16">
+              <div className="h-full w-auto flex items-center">
                 <Image
                   src="/soict.png"
                   alt="SOICT Logo"
-                  width={64}
-                  height={64}
-                  className="object-contain w-full h-full"
+                  width={176} 
+                  height={71}
+                  className="object-contain h-full w-auto"
                 />
               </div>
             </Link>
@@ -41,16 +43,26 @@ export default function Header() {
           <div className="ml-6 hidden space-x-4 xl:space-x-6 lg:block">
             {navigation.map((link) => (
               link.isScroll ? (
-                <ScrollLink
-                  key={link.name}
-                  to={link.href}
-                  smooth={true}
-                  duration={500}
-                  offset={-80}
-                  className="text-sm xl:text-base font-medium text-gray-700 hover:text-red-600 transition-colors cursor-pointer whitespace-nowrap"
-                >
-                  {link.name}
-                </ScrollLink>
+                pathname === '/' ? (
+                  <ScrollLink
+                    key={link.name}
+                    to={link.href}
+                    smooth={true}
+                    duration={500}
+                    offset={-80}
+                    className="text-sm xl:text-base font-medium text-gray-700 hover:text-red-600 transition-colors cursor-pointer whitespace-nowrap"
+                  >
+                    {link.name}
+                  </ScrollLink>
+                ) : (
+                  <Link
+                    key={link.name}
+                    href={`/#${link.href}`}
+                    className="text-sm xl:text-base font-medium text-gray-700 hover:text-red-600 transition-colors whitespace-nowrap"
+                  >
+                    {link.name}
+                  </Link>
+                )
               ) : (
                 <Link
                   key={link.name}
