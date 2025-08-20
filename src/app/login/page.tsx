@@ -6,6 +6,9 @@ import { useForm } from 'react-hook-form';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { auth } from '@/utils/auth';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type LoginForm = {
   email: string;
@@ -25,7 +28,7 @@ export default function LoginPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/user/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_LOGIN_API}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,13 +44,22 @@ export default function LoginPage() {
 
       if (response.ok && result.status === 'success') {
         // Đăng nhập thành công
-        alert('Đăng nhập thành công!');
+        toast.success('Đăng nhập thành công!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         
-        // Có thể lưu thông tin user vào localStorage nếu cần
-        localStorage.setItem('userEmail', result.data.email);
+        // Lưu thông tin user và timestamp đăng nhập
+        auth.setUserSession(result.data.email);
         
-        // Chuyển hướng đến admin dashboard
-        router.push('/admin/dashboard');
+        // Chuyển hướng đến admin dashboard sau 1 giây
+        setTimeout(() => {
+          router.push('/admin/dashboard');
+        }, 1000);
       } else {
         // Đăng nhập thất bại
         setErrorMessage(result.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
@@ -172,6 +184,20 @@ export default function LoginPage() {
       </div>
 
       <Footer />
+      
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

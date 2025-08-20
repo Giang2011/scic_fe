@@ -4,7 +4,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { MagnifyingGlassIcon, UserPlusIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, UserPlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { FaFacebook, FaPhone, FaCommentDots } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 type FindTeamForm = {
   full_name: string;
@@ -23,7 +25,7 @@ type TeamMember = {
   _id: string;
   full_name: string;
   email: string;
-  social_links: string[];
+  social_links: { link: string; type: string }[];
   school: string;
   major: string;
   skills: string[];
@@ -53,13 +55,17 @@ export default function FindTeamPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const membersPerPage = 6;
+  
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<FindTeamForm>();
 
   // Fetch members from API
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/v1/connect/accepted');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_CONNECT_ACCEPTED_API}`);
       if (response.ok) {
         const result = await response.json();
         // Lấy mảng thành viên từ result.data
@@ -118,13 +124,22 @@ export default function FindTeamPage() {
     }
     
     setFilteredMembers(filtered);
+    setCurrentPage(1); // Reset to first page when filtering
   };
+
+  // Pagination logic
+  const indexOfLastMember = currentPage * membersPerPage;
+  const indexOfFirstMember = indexOfLastMember - membersPerPage;
+  const currentMembers = filteredMembers.slice(indexOfFirstMember, indexOfLastMember);
+  const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const onSubmit = async (data: FindTeamForm) => {
     // Kiểm tra ít nhất một thông tin liên hệ được điền
     const hasContactInfo = data.facebook.trim() || data.zalo.trim() || data.phone.trim();
     if (!hasContactInfo) {
-      alert('Vui lòng điền ít nhất một thông tin liên hệ (Facebook, Zalo hoặc Số điện thoại)');
+      toast.error('Vui lòng điền ít nhất một thông tin liên hệ (Facebook, Zalo hoặc Số điện thoại)');
       return;
     }
 
@@ -157,7 +172,7 @@ export default function FindTeamPage() {
     // Gửi dữ liệu đến API
     setSubmitting(true);
     try {
-      const response = await fetch('http://localhost:8000/api/v1/connect', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_CONNECT_API}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +181,7 @@ export default function FindTeamPage() {
       });
 
       if (response.ok) {
-        alert('Đăng ký thành công! Thông tin của bạn đã được gửi và đang chờ duyệt.');
+        toast.success('Đăng ký thành công! Thông tin của bạn đã được gửi và đang chờ duyệt.');
         reset();
         setShowForm(false);
         setShowOtherSkills(false);
@@ -174,11 +189,11 @@ export default function FindTeamPage() {
         fetchMembers();
       } else {
         const errorData = await response.json();
-        alert(`Có lỗi xảy ra: ${errorData.message || 'Vui lòng thử lại sau'}`);
+        toast.error(`Có lỗi xảy ra: ${errorData.message || 'Vui lòng thử lại sau'}`);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Có lỗi kết nối. Vui lòng kiểm tra lại và thử lại sau.');
+      toast.error('Có lỗi kết nối. Vui lòng kiểm tra lại và thử lại sau.');
     } finally {
       setSubmitting(false);
     }
@@ -290,10 +305,19 @@ export default function FindTeamPage() {
                       <label className="block text-sm font-medium text-gray-600">Số điện thoại</label>
                       <input
                         type="tel"
-                        {...register('phone')}
-                        placeholder="Số điện thoại"
+                        {...register('phone', {
+                          validate: (value) => {
+                            if (!value || value.trim() === '') return true; // Không bắt buộc
+                            const phoneRegex = /^0\d{9}$/; // Bắt đầu bằng 0 và có đúng 10 số
+                            return phoneRegex.test(value.trim()) || 'Số điện thoại phải có 10 số và bắt đầu bằng số 0';
+                          }
+                        })}
+                        placeholder="0123456789"
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                       />
+                      {errors.phone && (
+                        <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -463,8 +487,9 @@ export default function FindTeamPage() {
               <p className="text-gray-500">Không tìm thấy thành viên nào phù hợp với tiêu chí tìm kiếm.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredMembers.map((member) => (
+            <>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {currentMembers.map((member) => (
                 <div key={member._id} className="bg-white shadow rounded-lg p-6">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">{member.full_name}</h3>
@@ -503,24 +528,66 @@ export default function FindTeamPage() {
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-700">Thông tin liên hệ:</h4>
                     <div className="mt-1 space-y-1">
-                      {member.social_links.length > 0 ? (
-                        member.social_links.map((link, index) => (
-                          <p key={index} className="text-sm text-gray-600">{link}</p>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-600">Liên hệ qua email: {member.email}</p>
-                      )}
+                      {member.social_links.map((socialLink, index) => (
+                        <p key={index} className="text-sm text-gray-600 flex items-center gap-2">
+                          {socialLink.type === 'facebook' && <FaFacebook className="text-blue-600" />}
+                          {socialLink.type === 'zalo' && <FaCommentDots className="text-blue-400" />}
+                          {socialLink.type === 'phone' && <FaPhone className="text-green-600" />}
+                          <span>
+                            {socialLink.type === 'facebook' ? 'Facebook: ' : 
+                             socialLink.type === 'zalo' ? 'Zalo: ' : 
+                             socialLink.type === 'phone' ? 'Phone: ' : ''}
+                            {socialLink.link}
+                          </span>
+                        </p>
+                      ))}
+                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                        <span>📧</span>
+                        <span>Email: {member.email}</span>
+                      </p>
                     </div>
                   </div>
-                  
-                  {member.createdAt && (
-                    <div className="text-xs text-gray-500 text-center border-t pt-3">
-                      Tham gia: {member.createdAt.slice(0, 10)}
-                    </div>
-                  )}
                 </div>
               ))}
-            </div>
+              </div>
+              
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex justify-center items-center space-x-2">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeftIcon className="h-4 w-4 mr-1" />
+                    Trước
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => paginate(page)}
+                      className={`inline-flex items-center px-3 py-2 border text-sm font-medium rounded-md ${
+                        currentPage === page
+                          ? 'bg-red-600 text-white border-red-600'
+                          : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Sau
+                    <ChevronRightIcon className="h-4 w-4 ml-1" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
