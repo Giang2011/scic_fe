@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/utils/auth';
+import { toast } from 'react-toastify';
 
 interface FindTeamMember {
   _id: string;
@@ -56,11 +57,11 @@ export default function FindTeam({ onMemberCountChange }: FindTeamProps) {
         setFindTeamMembers(sortedMembers);
       } else {
         console.error('Failed to fetch find team members:', result.message);
-        alert('Không thể tải danh sách thành viên tìm đội');
+        toast.error('Không thể tải danh sách thành viên tìm đội');
       }
     } catch (error) {
       console.error('Error fetching find team members:', error);
-      alert('Có lỗi kết nối khi tải danh sách thành viên');
+      toast.error('Có lỗi kết nối khi tải danh sách thành viên');
     } finally {
       setLoadingFindTeam(false);
     }
@@ -90,14 +91,14 @@ export default function FindTeam({ onMemberCountChange }: FindTeamProps) {
         });
         
         setFindTeamMembers(updatedMembers);
-        alert(`Cập nhật trạng thái thành công: ${newStatus}`);
+        toast.success(`Cập nhật trạng thái thành công: ${newStatus === 'accepted' ? 'Chấp nhận' : 'Từ chối'}`);
       } else {
         console.error('Failed to update status:', result.message);
-        alert('Không thể cập nhật trạng thái');
+        toast.error('Không thể cập nhật trạng thái');
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      alert('Có lỗi kết nối khi cập nhật trạng thái');
+      toast.error('Có lỗi kết nối khi cập nhật trạng thái');
     }
   };
 
