@@ -11,6 +11,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import { auth } from '@/utils/auth';
 
 interface PostImage {
   url: string;
@@ -66,7 +67,10 @@ export default function Posts() {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/api/v1/posts`);
-      if (!response.ok) throw new Error('Không thể tải bài viết');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Không thể tải bài viết');
+      }
       const data = await response.json();
       setPosts(data);
     } catch (err) {
@@ -80,7 +84,10 @@ export default function Posts() {
   const fetchPostById = async (id: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/posts/${id}`);
-      if (!response.ok) throw new Error('Không thể tải chi tiết bài viết');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Không thể tải chi tiết bài viết');
+      }
       const data = await response.json();
       return data;
     } catch (err) {
@@ -112,13 +119,19 @@ export default function Posts() {
         formData.append('videos', video);
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/posts`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
+        // Không set Content-Type cho FormData, browser sẽ tự set với boundary
       });
 
-      if (!response.ok) throw new Error('Không thể tạo bài viết');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Không thể tạo bài viết');
+      }
 
+      const result = await response.json();
       toast.success('Bài đăng đã được tạo thành công!');
       setNewPost({ title: '', content: '' });
       setSelectedImages([]);
@@ -155,13 +168,19 @@ export default function Posts() {
         formData.append('videos', video);
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/posts/${selectedPost._id}`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts/${selectedPost._id}`, {
         method: 'PUT',
         body: formData,
+        credentials: 'include',
+        // Không set Content-Type cho FormData, browser sẽ tự set với boundary
       });
 
-      if (!response.ok) throw new Error('Không thể cập nhật bài viết');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || 'Không thể cập nhật bài viết');
+      }
 
+      const result = await response.json();
       toast.success('Bài viết đã được cập nhật thành công!');
       setShowEditForm(false);
       setShowDetailModal(false);
@@ -177,11 +196,15 @@ export default function Posts() {
     if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/posts/${id}`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Không thể xóa bài viết');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || 'Không thể xóa bài viết');
+      }
 
       toast.success('Bài viết đã được xóa thành công!');
       fetchPosts();
