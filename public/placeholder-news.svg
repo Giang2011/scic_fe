@@ -1,0 +1,12 @@
+<!-- Placeholder SVG for news without images -->
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#F3F4F6"/>
+  <g opacity="0.3">
+    <path d="M200 200H600V400H200V200Z" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+    <circle cx="280" cy="260" r="20" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+    <path d="M200 350L280 280L360 320L520 240L600 280V400H200V350Z" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+  </g>
+  <text x="400" y="320" text-anchor="middle" fill="#6B7280" font-family="Arial, sans-serif" font-size="16">
+    Không có hình ảnh
+  </text>
+</svg>
