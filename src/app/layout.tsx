@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
+      <head>
+        <link rel="icon" href="favicon.ico" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         <ToastContainer 

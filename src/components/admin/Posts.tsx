@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import { auth } from '@/utils/auth';
+import Swal from "sweetalert2";
 
 interface PostImage {
   url: string;
@@ -193,7 +194,18 @@ export default function Posts() {
 
   // Delete post
   const handleDeletePost = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+  const result = await Swal.fire({
+    title: "Bạn có chắc chắn?",
+    text: "Bài viết này sẽ bị xoá vĩnh viễn!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Xoá",
+    cancelButtonText: "Huỷ",
+  });
+
+  if (!result.isConfirmed) return;
 
     try {
       const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts/${id}`, {

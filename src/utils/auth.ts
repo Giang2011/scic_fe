@@ -66,11 +66,12 @@ export const auth = {
       throw new Error('Token đã hết hạn');
     }
 
+    const isFormData = options.body instanceof FormData;
     const response = await fetch(url, {
       ...options,
       credentials: 'include', // Luôn gửi cookie
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...options.headers,
       },
     });
