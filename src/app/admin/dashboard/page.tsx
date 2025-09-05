@@ -18,7 +18,6 @@ import FindTeam from '@/components/admin/FindTeam';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [user, setUser] = useState<{ email: string } | null>(null);
-  const [findTeamMembersCount, setFindTeamMembersCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,10 +33,6 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     auth.logout();
-  };
-
-  const handleMemberCountChange = (count: number) => {
-    setFindTeamMembersCount(count);
   };
 
   if (!user) {
@@ -100,10 +95,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'overview' && <Overview findTeamMembersCount={findTeamMembersCount} />}
+        {activeTab === 'overview' && <Overview />}
         {activeTab === 'submissions' && <Submissions />}
         {activeTab === 'posts' && <Posts />}
-        {activeTab === 'findteam' && <FindTeam onMemberCountChange={handleMemberCountChange} />}
+        {activeTab === 'findteam' && <FindTeam />}
       </div>
     </div>
   );

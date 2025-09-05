@@ -1,59 +1,146 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DocumentTextIcon,
   UserGroupIcon,
   NewspaperIcon,
 } from '@heroicons/react/24/outline';
+import { auth } from '@/utils/auth';
 
-interface OverviewProps {
-  findTeamMembersCount: number;
+interface Submission {
+  _id: string;
+  teamName: string;
+  projectName: string;
+  leader: {
+    fullName: string;
+    studentId: string;
+    email: string;
+    phone: string;
+  };
+  members: Array<{
+    fullName: string;
+    studentId: string;
+    email: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const mockSubmissions = [
-  {
-    id: 1,
-    teamName: 'Team Innovation',
-    projectName: 'AI Chatbot cho Giáo dục',
-    submittedAt: '2025-01-15T10:30:00Z',
-    leader: 'Nguyễn Văn A',
-    memberCount: 4
-  },
-  {
-    id: 2,
-    teamName: 'Tech Pioneers',
-    projectName: 'Smart Farm Management',
-    submittedAt: '2025-01-14T15:45:00Z',
-    leader: 'Trần Thị B',
-    memberCount: 3
-  },
-  {
-    id: 3,
-    teamName: 'Digital Solutions',
-    projectName: 'E-commerce Platform',
-    submittedAt: '2025-01-13T09:20:00Z',
-    leader: 'Lê Minh C',
-    memberCount: 5
-  }
-];
+interface Post {
+  _id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const mockPosts = [
-  {
-    id: 1,
-    title: 'Thông báo mở đăng ký SCIC 2025',
-    content: 'Cuộc thi SCIC 2025 chính thức mở đăng ký từ ngày 01/03/2025...',
-    publishedAt: '2025-01-10T14:00:00Z',
-    author: 'Admin'
-  },
-  {
-    id: 2,
-    title: 'Hướng dẫn nộp bài dự thi',
-    content: 'Các đội thi vui lòng tham khảo hướng dẫn chi tiết về cách nộp bài...',
-    publishedAt: '2025-01-08T10:30:00Z',
-    author: 'Admin'
-  }
-];
+interface FindTeamMember {
+  _id: string;
+  full_name: string;
+  email: string;
+  school: string;
+  major: string;
+  skills: string[];
+  interests?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+  updatedAt: string;
+}
 
-export default function Overview({ findTeamMembersCount }: OverviewProps) {
+export default function Overview() {
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [findTeamMembers, setFindTeamMembers] = useState<FindTeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchSubmissions(),
+        fetchPosts(),
+        fetchFindTeamMembers()
+      ]);
+    } catch (error) {
+      console.error('Error fetching overview data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSubmissions = async () => {
+    try {
+      const response = await auth.fetchWithAuth(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_SUBMISSIONS_API}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Sort submissions by creation date (newest first for recent activity)
+        const sortedSubmissions = result.sort((a: Submission, b: Submission) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setSubmissions(sortedSubmissions);
+      } else {
+        console.error('Failed to fetch submissions');
+      }
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_POSTS_API}`);
+      
+      if (response.ok) {
+        const result = await response.json();
+        setPosts(result);
+      } else {
+        console.error('Failed to fetch posts');
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
+  const fetchFindTeamMembers = async () => {
+    try {
+      const response = await auth.fetchWithAuth(`${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_CONNECT_GET_API}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.status === 'success') {
+          setFindTeamMembers(result.data);
+        }
+      } else {
+        console.error('Failed to fetch find team members');
+      }
+    } catch (error) {
+      console.error('Error fetching find team members:', error);
+    }
+  };
+
+  // Calculate total participants from submissions
+  const totalParticipants = submissions.reduce((acc, submission) => {
+    return acc + 1 + submission.members.length; // 1 leader + members
+  }, 0);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -69,7 +156,7 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
                     Đơn dự thi
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {mockSubmissions.length}
+                    {submissions.length}
                   </dd>
                 </dl>
               </div>
@@ -89,7 +176,7 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
                     Bài đăng
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {mockPosts.length}
+                    {posts.length}
                   </dd>
                 </dl>
               </div>
@@ -109,7 +196,7 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
                     Tìm đội
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {findTeamMembersCount}
+                    {findTeamMembers.length}
                   </dd>
                 </dl>
               </div>
@@ -129,7 +216,7 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
                     Thí sinh
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {mockSubmissions.reduce((acc, sub) => acc + sub.memberCount, 0)}
+                    {totalParticipants}
                   </dd>
                 </dl>
               </div>
@@ -145,8 +232,8 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
             Hoạt động gần đây
           </h3>
           <div className="space-y-3">
-            {mockSubmissions.slice(0, 3).map((submission) => (
-              <div key={submission.id} className="flex items-center space-x-3">
+            {submissions.slice(0, 5).map((submission) => (
+              <div key={submission._id} className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
                   <DocumentTextIcon className="h-5 w-5 text-gray-400" />
                 </div>
@@ -155,11 +242,14 @@ export default function Overview({ findTeamMembersCount }: OverviewProps) {
                     <span className="font-medium">{submission.teamName}</span> đã nộp bài dự thi
                   </p>
                   <p className="text-sm text-gray-500">
-                    {new Date(submission.submittedAt).toLocaleString('vi-VN')}
+                    {new Date(submission.createdAt).toLocaleString('vi-VN')}
                   </p>
                 </div>
               </div>
             ))}
+            {submissions.length === 0 && (
+              <p className="text-sm text-gray-500">Chưa có hoạt động nào</p>
+            )}
           </div>
         </div>
       </div>

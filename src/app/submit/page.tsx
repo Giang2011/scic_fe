@@ -5,9 +5,11 @@ import Footer from '@/components/Footer';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type TeamMember = {
-  name: string;
+  fullName: string;
   studentId: string;
   email: string;
   phone?: string;
@@ -19,9 +21,9 @@ type SubmissionForm = {
   leader: TeamMember;
   members: TeamMember[];
   description: string;
-  slideFile: FileList;
+  report: FileList;
   videoLink?: string;
-  otherFiles?: FileList;
+  attachments?: FileList;
 };
 
 export default function SubmitPage() {
@@ -32,7 +34,7 @@ export default function SubmitPage() {
 
   const addMember = () => {
     if (members.length < 4) { // Tối đa 5 người (1 trưởng nhóm + 4 thành viên)
-      setMembers([...members, { name: '', studentId: '', email: '' }]);
+      setMembers([...members, { fullName: '', studentId: '', email: '' }]);
     }
   };
 
@@ -49,13 +51,100 @@ export default function SubmitPage() {
   const onSubmit = async (data: SubmissionForm) => {
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    alert('Đã nộp bài thành công! Chúng tôi sẽ gửi email xác nhận đến bạn.');
-    reset();
-    setMembers([]);
-    setIsSubmitting(false);
+    try {
+      // Tạo FormData để upload files
+      const formData = new FormData();
+      
+      // Thêm các thông tin cơ bản
+      formData.append('teamName', data.teamName);
+      formData.append('projectName', data.projectName);
+      
+      // Thêm thông tin leader (stringify object)
+      formData.append('leader', JSON.stringify({
+        fullName: data.leader.fullName,
+        studentId: data.leader.studentId,
+        email: data.leader.email,
+        phone: data.leader.phone || ''
+      }));
+      
+      // Thêm thông tin members (stringify array)
+      const membersData = members.map(member => ({
+        fullName: member.fullName,
+        studentId: member.studentId,
+        email: member.email,
+        phone: member.phone || ''
+      }));
+      formData.append('members', JSON.stringify(membersData));
+      
+      // Thêm mô tả (không bắt buộc)
+      if (data.description) {
+        formData.append('description', data.description);
+      }
+      
+      // Thêm video link (không bắt buộc)
+      if (data.videoLink) {
+        formData.append('videoLink', data.videoLink);
+      }
+      
+      // Thêm file báo cáo (bắt buộc)
+      if (data.report && data.report.length > 0) {
+        formData.append('report', data.report[0]);
+      }
+      
+      // Thêm files đính kèm (không bắt buộc)
+      if (data.attachments && data.attachments.length > 0) {
+        for (let i = 0; i < data.attachments.length; i++) {
+          formData.append('attachments', data.attachments[i]);
+        }
+      }
+      
+      // Gửi request
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}${process.env.NEXT_PUBLIC_SUBMIT_API || '/api/v1/submissions/submit'}`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Thành công
+        toast.success('Nộp bài thành công! Chúng tôi sẽ gửi email xác nhận đến bạn.', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        // Reset form
+        reset();
+        setMembers([]);
+      } else {
+        // Lỗi từ server
+        toast.error(result.message || 'Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast.error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -122,12 +211,12 @@ export default function SubmitPage() {
                   </label>
                   <input
                     type="text"
-                    {...register('leader.name', { required: 'Vui lòng nhập họ tên' })}
+                    {...register('leader.fullName', { required: 'Vui lòng nhập họ tên' })}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                     placeholder="Nhập họ và tên trưởng nhóm..."
                   />
-                  {errors.leader?.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.leader.name.message}</p>
+                  {errors.leader?.fullName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.leader.fullName.message}</p>
                   )}
                 </div>
                 
@@ -169,17 +258,14 @@ export default function SubmitPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Số điện thoại <span className="text-red-500">*</span>
+                    Số điện thoại
                   </label>
                   <input
                     type="tel"
-                    {...register('leader.phone', { required: 'Vui lòng nhập số điện thoại' })}
+                    {...register('leader.phone')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                     placeholder="Nhập số điện thoại..."
                   />
-                  {errors.leader?.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.leader.phone.message}</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -212,13 +298,13 @@ export default function SubmitPage() {
                     </button>
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Họ và tên</label>
                       <input
                         type="text"
-                        value={member.name}
-                        onChange={(e) => updateMember(index, 'name', e.target.value)}
+                        value={member.fullName}
+                        onChange={(e) => updateMember(index, 'fullName', e.target.value)}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
                         placeholder="Nhập họ và tên..."
                       />
@@ -245,6 +331,17 @@ export default function SubmitPage() {
                         placeholder="example@email.com"
                       />
                     </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                      <input
+                        type="tel"
+                        value={member.phone || ''}
+                        onChange={(e) => updateMember(index, 'phone', e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
+                        placeholder="Nhập số điện thoại..."
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -253,12 +350,11 @@ export default function SubmitPage() {
             {/* Mô tả dự án */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Mô tả ngắn về dự án <span className="text-red-500">*</span>
+                Mô tả ngắn về dự án
               </label>
               <textarea
                 rows={8}
                 {...register('description', { 
-                  required: 'Vui lòng nhập mô tả dự án',
                   maxLength: { value: 500, message: 'Mô tả không được quá 500 ký tự' }
                 })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-base text-gray-900 placeholder-gray-400 py-3 px-4"
@@ -276,19 +372,19 @@ export default function SubmitPage() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    File Slide/Báo cáo <span className="text-red-500">*</span>
+                    File Báo cáo <span className="text-red-500">*</span>
                   </label>
                   <p className="text-sm text-gray-500 mb-2">
-                    Chấp nhận file .pdf, .ppt, .pptx (tối đa 25MB)
+                    Chấp nhận file .pdf, .ppt, .pptx, .doc, .docx (tối đa 100MB)
                   </p>
                   <input
                     type="file"
-                    accept=".pdf,.ppt,.pptx"
-                    {...register('slideFile', { required: 'Vui lòng chọn file slide/báo cáo' })}
+                    accept=".pdf,.ppt,.pptx,.doc,.docx"
+                    {...register('report', { required: 'Vui lòng chọn file báo cáo' })}
                     className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                   />
-                  {errors.slideFile && (
-                    <p className="mt-1 text-sm text-red-600">{errors.slideFile.message}</p>
+                  {errors.report && (
+                    <p className="mt-1 text-sm text-red-600">{errors.report.message}</p>
                   )}
                 </div>
                 
@@ -312,13 +408,12 @@ export default function SubmitPage() {
                     Các tệp đính kèm khác (không bắt buộc)
                   </label>
                   <p className="text-sm text-gray-500 mb-2">
-                    Chấp nhận file .zip, .rar
+                    Chấp nhận tất cả định dạng file (mỗi file tối đa 100MB)
                   </p>
                   <input
                     type="file"
-                    accept=".zip,.rar"
                     multiple
-                    {...register('otherFiles')}
+                    {...register('attachments')}
                     className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
                   />
                 </div>
@@ -340,6 +435,20 @@ export default function SubmitPage() {
       </div>
 
       <Footer />
+      
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

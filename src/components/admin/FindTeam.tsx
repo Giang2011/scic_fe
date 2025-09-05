@@ -17,11 +17,7 @@ interface FindTeamMember {
   updatedAt: string;
 }
 
-interface FindTeamProps {
-  onMemberCountChange: (count: number) => void;
-}
-
-export default function FindTeam({ onMemberCountChange }: FindTeamProps) {
+export default function FindTeam() {
   const [findTeamMembers, setFindTeamMembers] = useState<FindTeamMember[]>([]);
   const [loadingFindTeam, setLoadingFindTeam] = useState(false);
   const [selectedMember, setSelectedMember] = useState<FindTeamMember | null>(null);
@@ -34,10 +30,6 @@ export default function FindTeam({ onMemberCountChange }: FindTeamProps) {
   useEffect(() => {
     fetchFindTeamMembers();
   }, []);
-
-  useEffect(() => {
-    onMemberCountChange(findTeamMembers.length);
-  }, [findTeamMembers.length, onMemberCountChange]);
 
   const fetchFindTeamMembers = async () => {
     setLoadingFindTeam(true);
