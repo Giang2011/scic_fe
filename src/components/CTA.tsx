@@ -17,7 +17,7 @@ export default function CTA({
   primaryButtonText = "Nộp bài dự thi",
   primaryButtonLink = "/submit",
   secondaryButtonText = "Tìm hiểu thêm",
-  secondaryButtonLink = "/rules",
+  secondaryButtonLink = "#",
 }: CTAProps) {
   return (
     <section id="cta" className="bg-white py-16">
