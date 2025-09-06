@@ -60,14 +60,16 @@ export default function Posts() {
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
   const [removeVideoIds, setRemoveVideoIds] = useState<string[]>([]);
 
-  // API base URL
+  // API URLs
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const POSTS_API = process.env.NEXT_PUBLIC_POSTS_API;
+  const POST_DETAIL_API = process.env.NEXT_PUBLIC_POST_DETAIL_API;
 
   // Fetch posts
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/v1/posts`);
+      const response = await fetch(`${API_BASE_URL}${POSTS_API}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || 'Không thể tải bài viết');
@@ -84,7 +86,7 @@ export default function Posts() {
   // Fetch post by ID
   const fetchPostById = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/posts/${id}`);
+      const response = await fetch(`${API_BASE_URL}${POST_DETAIL_API}/${id}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || 'Không thể tải chi tiết bài viết');
@@ -120,7 +122,7 @@ export default function Posts() {
         formData.append('videos', video);
       });
 
-      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}${POSTS_API}`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -169,7 +171,7 @@ export default function Posts() {
         formData.append('videos', video);
       });
 
-      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts/${selectedPost._id}`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}${POST_DETAIL_API}/${selectedPost._id}`, {
         method: 'PUT',
         body: formData,
         credentials: 'include',
@@ -208,7 +210,7 @@ export default function Posts() {
   if (!result.isConfirmed) return;
 
     try {
-      const response = await auth.fetchWithAuth(`${API_BASE_URL}/api/v1/posts/${id}`, {
+      const response = await auth.fetchWithAuth(`${API_BASE_URL}${POST_DETAIL_API}/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
