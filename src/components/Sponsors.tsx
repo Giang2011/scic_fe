@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { sponsorsData, sectionContent } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 // --- INTERFACES & DATA ---
 interface Sponsor {
@@ -24,29 +25,32 @@ export default function Sponsors({
   return (
     <section id="sponsors" className="py-16 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
-            {title}
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            {description}
-          </p>
-        </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          {/* Header */}
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
+              {title}
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              {description}
+            </p>
+          </div>
+        </RevealOnScroll>
         
-        {/* Sponsor Grid */}
-        <div className="mx-auto mt-16">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
-            {sponsors.map((sponsor) => (
-              <a
-                key={sponsor.name}
-                href={sponsor.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center rounded-xl bg-gray-50 p-6 aspect-[3/2] transition hover:shadow-lg hover:-translate-y-1"
-              >
-                <div className="relative w-full h-full">
-                  <Image
+        <RevealOnScroll direction="up" delay={0.2} duration={0.8}>
+          {/* Sponsor Grid */}
+          <div className="mx-auto mt-16">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
+              {sponsors.map((sponsor) => (
+                <a
+                  key={sponsor.name}
+                  href={sponsor.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center rounded-xl bg-gray-50 p-6 aspect-[3/2] transition hover:shadow-lg hover:-translate-y-1"
+                >
+                  <div className="relative w-full h-full">
+                    <Image
                     src={sponsor.logo}
                     alt={sponsor.name}
                     fill
@@ -56,8 +60,10 @@ export default function Sponsors({
               </a>
             ))}
           </div>
-        </div>
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );
 }
+

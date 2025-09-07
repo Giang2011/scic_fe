@@ -9,6 +9,7 @@ import {
   rulesJudgingData,
   sectionContent 
 } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 // Hàm để lấy component icon từ tên
 const getIconComponent = (iconName: string) => {
@@ -28,51 +29,53 @@ export default function Rules() {
   return (
     <section id="rules" className="bg-gray-50 py-16 sm:py-24">
       <div className="container mx-auto max-w-4xl px-4">
-        {/* Tiêu đề */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-red-900">
-            {sectionContent.rules.title}
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            {sectionContent.rules.description}
-          </p>
-        </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          {/* Tiêu đề */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-red-900">
+              {sectionContent.rules.title}
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              {sectionContent.rules.description}
+            </p>
+          </div>
 
-        {/* Thanh điều hướng Tab */}
-        <div className="mb-8 flex justify-center p-1 rounded-lg bg-gray-100/80 space-x-1">
-          {rulesTabsData.map((tab) => {
-            const IconComponent = getIconComponent(tab.iconName);
-            return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none
-                ${activeTab === tab.id
-                  ? 'bg-white text-red-800 shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-200/70'
-                }
-              `}
-            >
-              <IconComponent className="w-5 h-5 mr-2" />
-              {tab.label}
-            </button>
-            );
-          })}
-        </div>
+          {/* Thanh điều hướng Tab */}
+          <div className="mb-8 flex justify-center p-1 rounded-lg bg-gray-100/80 space-x-1">
+            {rulesTabsData.map((tab) => {
+              const IconComponent = getIconComponent(tab.iconName);
+              return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none
+                  ${activeTab === tab.id
+                    ? 'bg-white text-red-800 shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-200/70'
+                  }
+                `}
+              >
+                <IconComponent className="w-5 h-5 mr-2" />
+                {tab.label}
+              </button>
+              );
+            })}
+          </div>
 
-        {/* Nội dung Tab */}
-        <div className="p-8 bg-white border border-gray-200 rounded-xl shadow-md min-h-[350px]">
-          {activeTab === 'eligibility' && (
-            <GuidelineContent title={rulesEligibilityData.title} guidelines={rulesEligibilityData.guidelines} />
-          )}
-          {activeTab === 'submission' && (
-            <GuidelineContent title={rulesSubmissionData.title} guidelines={rulesSubmissionData.guidelines} />
-          )}
-          {activeTab === 'judging' && (
-            <JudgingContent title={rulesJudgingData.title} criteria={rulesJudgingData.criteria} />
-          )}
-        </div>
+          {/* Nội dung Tab */}
+          <div className="p-8 bg-white border border-gray-200 rounded-xl shadow-md min-h-[350px]">
+            {activeTab === 'eligibility' && (
+              <GuidelineContent title={rulesEligibilityData.title} guidelines={rulesEligibilityData.guidelines} />
+            )}
+            {activeTab === 'submission' && (
+              <GuidelineContent title={rulesSubmissionData.title} guidelines={rulesSubmissionData.guidelines} />
+            )}
+            {activeTab === 'judging' && (
+              <JudgingContent title={rulesJudgingData.title} criteria={rulesJudgingData.criteria} />
+            )}
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );

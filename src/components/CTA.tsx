@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import RevealOnScroll from './RevealOnScroll';
 
 // --- INTERFACE & PROPS ---
 interface CTAProps {
@@ -22,8 +23,9 @@ export default function CTA({
   return (
     <section id="cta" className="bg-white py-16">
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
-        {/* Container chính với nền trắng, viền đỏ và bóng đổ */}
-        <div className="relative isolate overflow-hidden rounded-3xl bg-white px-6 py-24 text-center shadow-lg ring-1 ring-red-900/10 sm:px-16">
+        <RevealOnScroll direction="up" duration={0.8}>
+          {/* Container chính với nền trắng, viền đỏ và bóng đổ */}
+          <div className="relative isolate overflow-hidden rounded-3xl bg-white px-6 py-24 text-center shadow-lg ring-1 ring-red-900/10 sm:px-16">
           
           <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-red-600 sm:text-4xl">
             {title}
@@ -48,7 +50,8 @@ export default function CTA({
               {secondaryButtonText} <span aria-hidden="true">→</span>
             </Link>
           </div>
-        </div>
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );

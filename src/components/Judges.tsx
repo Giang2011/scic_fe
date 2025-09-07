@@ -2,26 +2,30 @@
 import Image from 'next/image';
 import { FaLinkedin, FaFacebook } from "react-icons/fa";
 import { judgesData, sectionContent } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 export default function Judges() {
   return (
     <section id="judges" className="py-16 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
-            {sectionContent.judges.title}
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            {sectionContent.judges.description}
-          </p>
-        </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
+              {sectionContent.judges.title}
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              {sectionContent.judges.description}
+            </p>
+          </div>
+        </RevealOnScroll>
         
         {/* Lưới các thẻ giám khảo - Tối đa 3 cột */}
         <div className="mx-auto mt-16 grid max-w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {judgesData.map((judge) => (
-            <div key={judge.name} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col text-center items-center transition-transform duration-300 hover:-translate-y-2 border border-gray-100">
-              <div className="relative w-32 h-32 mb-4">
-                <Image
+          {judgesData.map((judge, index) => (
+            <RevealOnScroll key={judge.name} direction="up" delay={index * 0.1} duration={0.6}>
+              <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col text-center items-center transition-transform duration-300 hover:-translate-y-2 border border-gray-100">
+                <div className="relative w-32 h-32 mb-4">
+                  <Image
                   src={judge.avatar}
                   alt={`Avatar of ${judge.name}`}
                   layout="fill"
@@ -56,7 +60,8 @@ export default function Judges() {
                   <FaFacebook size={20} />
                 </a>
               </div>
-            </div>
+              </div>
+            </RevealOnScroll>
           ))}
         </div>
       </div>

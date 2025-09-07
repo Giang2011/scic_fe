@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { sectionContent } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 interface NewsPost {
   _id: string;
@@ -120,17 +121,20 @@ export default function News() {
   return (
     <section id="news" className="py-16 sm:py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
-            {sectionContent.news.title}
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            {sectionContent.news.description}
-          </p>
-        </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
+              {sectionContent.news.title}
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              {sectionContent.news.description}
+            </p>
+          </div>
+        </RevealOnScroll>
 
         {/* Carousel Container */}
-        <div className="mt-16 relative max-w-5xl mx-auto">
+        <RevealOnScroll direction="up" delay={0.2} duration={0.8}>
+          <div className="mt-16 relative max-w-5xl mx-auto">
           {/* Main Content */}
           <div className="overflow-hidden rounded-lg shadow-xl border border-gray-200">
             <div key={currentIndex} className="grid grid-cols-1 lg:grid-cols-2 items-center bg-white animate-fade-in">
@@ -210,7 +214,8 @@ export default function News() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );

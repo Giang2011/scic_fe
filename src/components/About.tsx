@@ -1,6 +1,7 @@
 import { Lightbulb, Users, Award, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import { aboutData } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 // Hàm để lấy component icon từ tên
 const getIconComponent = (iconName: string) => {
@@ -30,55 +31,59 @@ export default function About({
       <main className="container mx-auto px-4 max-w-6xl">
         
         {/* === PHẦN GIỚI THIỆU CUỘC THI === */}
-        <section className="mb-20">
-          <h1 className="text-4xl font-bold text-red-900 mb-8 text-center">
-            {title}
-          </h1>
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            
-            <div className="space-y-6">
-              <p className="text-gray-600 leading-relaxed">
-                {description}
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                {aboutData.extendedDescription}
-              </p>
-              <button className="bg-red-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-300 shadow-md">
-                Xem Thể lệ & Quy định
-              </button>
-            </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          <section className="mb-20">
+            <h1 className="text-4xl font-bold text-red-900 mb-8 text-center">
+              {title}
+            </h1>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              
+              <div className="space-y-6">
+                <p className="text-gray-600 leading-relaxed">
+                  {description}
+                </p>
+                <p className="text-gray-600 leading-relaxed">
+                  {aboutData.extendedDescription}
+                </p>
+                <button className="bg-red-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-300 shadow-md">
+                  Xem Thể lệ & Quy định
+                </button>
+              </div>
 
-            <div className="relative">
-              <Image
-                src="/aboutimage.png"
-                alt="Các bạn sinh viên đang hợp tác"
-                width={600}
-                height={400}
-                className="rounded-lg shadow-xl object-cover w-full h-full"
-              />
-              <div className="absolute bottom-5 left-5 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-md shadow-lg">
-                Thời gian: 3 Tháng
+              <div className="relative">
+                <Image
+                  src="/aboutimage.png"
+                  alt="Các bạn sinh viên đang hợp tác"
+                  width={600}
+                  height={400}
+                  className="rounded-lg shadow-xl object-cover w-full h-full"
+                />
+                <div className="absolute bottom-5 left-5 bg-yellow-400 text-gray-900 font-bold py-2 px-4 rounded-md shadow-lg">
+                  Thời gian: 3 Tháng
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </RevealOnScroll>
 
         {/* === PHẦN CÁC TÍNH NĂNG NỔI BẬT === */}
-        <section>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {aboutData.featureCards.map((feature, index) => {
-              const IconComponent = getIconComponent(feature.iconName);
-              return (
-                <FeatureCard
-                  key={index}
-                  icon={<IconComponent className="h-8 w-8 text-red-800" />}
-                  title={feature.title}
-                  description={feature.description}
-                />
-              );
-            })}
-          </div>
-        </section>
+        <RevealOnScroll direction="up" delay={0.2} duration={0.8}>
+          <section>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {aboutData.featureCards.map((feature, index) => {
+                const IconComponent = getIconComponent(feature.iconName);
+                return (
+                  <FeatureCard
+                    key={index}
+                    icon={<IconComponent className="h-8 w-8 text-red-800" />}
+                    title={feature.title}
+                    description={feature.description}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        </RevealOnScroll>
 
       </main>
     </section>

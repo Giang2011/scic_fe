@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { faqData, sectionContent } from '../data/siteContent';
+import RevealOnScroll from './RevealOnScroll';
 
 export default function FAQ() {
   // State để theo dõi index của câu hỏi đang được mở
@@ -16,27 +17,30 @@ export default function FAQ() {
   return (
     <section id="faq" className="py-16 bg-white">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
-            {sectionContent.faq.title}
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            {sectionContent.faq.description}
-          </p>
-        </div>
+        <RevealOnScroll direction="up" duration={0.8}>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-red-900 sm:text-4xl">
+              {sectionContent.faq.title}
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              {sectionContent.faq.description}
+            </p>
+          </div>
+        </RevealOnScroll>
         
-        <div className="mx-auto mt-16 max-w-4xl">
-          <div className="space-y-4">
-            {faqData.map((faq, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                {/* Phần câu hỏi có thể click được */}
-                <button
-                  onClick={() => handleToggle(index)}
-                  className="w-full flex justify-between items-center text-left p-6 focus:outline-none"
-                >
-                  <h3 className="text-lg font-semibold text-red-900">
-                    {faq.question}
-                  </h3>
+        <RevealOnScroll direction="up" delay={0.2} duration={0.8}>
+          <div className="mx-auto mt-16 max-w-4xl">
+            <div className="space-y-4">
+              {faqData.map((faq, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  {/* Phần câu hỏi có thể click được */}
+                  <button
+                    onClick={() => handleToggle(index)}
+                    className="w-full flex justify-between items-center text-left p-6 focus:outline-none"
+                  >
+                    <h3 className="text-lg font-semibold text-red-900">
+                      {faq.question}
+                    </h3>
                   {/* Icon mũi tên xoay */}
                   <span className="text-red-900">
                     <svg
@@ -62,7 +66,8 @@ export default function FAQ() {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </RevealOnScroll>
       </div>
     </section>
   );
