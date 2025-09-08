@@ -269,7 +269,7 @@ export default function NewsDetailPage() {
                 {/* View all news link */}
                 <div className="mt-6 pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
                   <button
-                    onClick={() => router.push('/#news')}
+                    onClick={() => router.push('/news')}
                     className="w-full text-center text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
                   >
                     Xem tất cả tin tức →

@@ -170,9 +170,15 @@ export default function News() {
                 <div className="mt-8">
                   <button 
                     onClick={() => handleReadMore(newsData[currentIndex]._id)}
-                    className="bg-red-600 text-white px-5 py-2.5 rounded-md font-semibold hover:bg-red-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    className="bg-red-600 text-white px-5 py-2.5 rounded-md font-semibold hover:bg-red-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 mr-4"
                   >
                     Đọc thêm
+                  </button>
+                  <button 
+                    onClick={() => router.push('/news')}
+                    className="border border-red-600 text-red-600 px-5 py-2.5 rounded-md font-semibold hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  >
+                    Xem tất cả
                   </button>
                 </div>
               </div>
